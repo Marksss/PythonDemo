@@ -5,7 +5,6 @@ from datetime import datetime
 
 
 def get_hangzhou_jobs(days):
-    output = "*************杭州市属start**************\n"
     url = 'http://hrss.hangzhou.gov.cn/module/xxgk/search.jsp'
     html = requests_utils.start_request(url,
                                         params={
@@ -15,10 +14,11 @@ def get_hangzhou_jobs(days):
                                         },
                                         request_type=1)
     if html is None:
-        output = output + '网页请求失败'
+        output = '网页请求失败'
     else:
-        output = output + parse_and_output(days, html, url)
-    print(output + "*************杭州市属end**************\n")
+        output = parse_and_output(days, html, url)
+    print("*************杭州市属start**************\n" +
+          output + "*************杭州市属end**************\n")
 
 
 def parse_and_output(days, html, url):
@@ -42,7 +42,8 @@ def parse_and_output(days, html, url):
             a = a_tags[i]
             title = a.get('title')
             if not text_filter(title):
-                result = result + date + ',' + title + ',link=' + a.get('href') + '\n'
+                link = a.get('href')
+                result = f'{result}{date},{title},link={link}\n'
     if interval_days < days:
         result = f"{result}最近{days}天杭州市属岗位发布较多，待续---> {url}\n"
     elif len(result) == 0:

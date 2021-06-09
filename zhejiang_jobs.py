@@ -4,14 +4,14 @@ from datetime import datetime
 
 
 def get_zhejiang_jobs(days):
-    output = "*************省属start**************\n"
     url = 'http://rlsbt.zj.gov.cn/col/col1443681/index.html'
     html = requests_utils.start_request(url)
     if html is None:
-        output = output + '网页请求失败'
+        output = '网页请求失败'
     else:
-        output = output + parse_and_output(days, html, url)
-    print(output + "*************省属end**************\n")
+        output = parse_and_output(days, html, url)
+    print("*************省属start**************\n" +
+          output + "*************省属end**************\n")
 
 
 def parse_and_output(days, html, url):
@@ -36,7 +36,7 @@ def parse_and_output(days, html, url):
                 continue
             link = re.findall('href=\'(.+)\' class', item)
             if len(link) > 0:
-                result = result + date[0] + ',' + text[0] + ',link=http://rlsbt.zj.gov.cn' + link[0] + '\n'
+                result = f'{result}{date[0]},{text[0]},link={link[0]}\n'
     if interval_days < days:
         result = f"{result}最近{days}天省属岗位发布较多，待续---> {url}\n"
     elif len(result) == 0:

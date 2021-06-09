@@ -13,9 +13,9 @@ def start_request(url, headers=None, params=None, request_type=0):
         }
     try:
         if request_type == 0:
-            response = requests.get(url, headers=headers, params=params)
+            response = requests.get(url, headers=headers, params=params, timeout=5)
         else:
-            response = requests.post(url, headers=headers, params=params)
+            response = requests.post(url, headers=headers, params=params, timeout=5)
         if response.status_code == 200:
             response.encoding = response.apparent_encoding
             return response.text

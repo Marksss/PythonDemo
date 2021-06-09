@@ -4,17 +4,28 @@ from bs4 import BeautifulSoup
 
 
 def get_college_jobs(days):
-    output = "*************浙江高校start**************\n"
-    url = 'http://www.gaoxiaojob.com/zhaopin/gaoxiao/zhejiang/'
-    html = requests_utils.start_request(url)
-    if html is None:
-        output = output + '网页请求失败'
-    else:
-        output = output + parse_and_output(days, html, url)
-    print(output + "*************浙江高校end**************\n")
+    output = ''
+    for i in range(1, 5):
+        url = f'http://www.gaoxiaojob.com/zhaopin/gaoxiao/zhejiang/index_{i}.html'
+        html = requests_utils.start_request(url)
+        if html is None:
+            if len(output) > 0:
+                output = f'{output}\npage({i})网页请求失败'
+            else:
+                output = '网页请求失败'
+            break
+        else:
+            result = parse_and_output(days, html)
+            output = output + result[0]
+            if not result[1]:
+                break
+    if len(output) == 0:
+        output = f"最近{days}天没有岗位发布\n"
+    print("*************浙江高校start**************\n" + output +
+          "*************浙江高校end**************\n")
 
 
-def parse_and_output(days, html, url):
+def parse_and_output(days, html):
     interval_days = -1
     local_time = datetime.now()
     soup = BeautifulSoup(html, 'lxml')
@@ -30,13 +41,9 @@ def parse_and_output(days, html, url):
                 title = item_tag.a.string
                 link = item_tag.a.get('href')
                 if not text_filter(title) and link is not None:
-                    result = result + date + ',' + title[1:] + ',link=' + link + '\n'
+                    result = f'{result}{date},{title[1:]},link={link}\n'
         item_tag = item_tag.find_next("span", class_="ltitle")
-    if interval_days < days:
-        result = f"{result}最近{days}天高校岗位发布较多，待续---> {url}\n"
-    elif len(result) == 0:
-        result = f"最近{days}天没有岗位发布\n"
-    return result
+    return [result, interval_days < days]
 
 
 def text_filter(text):
